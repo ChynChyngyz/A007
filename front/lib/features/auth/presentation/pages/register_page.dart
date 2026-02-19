@@ -1,30 +1,45 @@
-import 'package:flutter/material.dart';
+// features/auth/presentation/pages/register_page.dart
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:front/desktop/pages/main_page.dart';
+
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
 
   bool _isLoading = false;
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
-  void _login() async {
+  void _register() async {
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     await Future.delayed(const Duration(seconds: 1));
 
-    // TODO: подключить JWT авторизацию через Django API
-
     setState(() => _isLoading = false);
 
-    print("Email: ${_emailController.text}");
-    print("Password: ${_passwordController.text}");
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const AnyDeskPage()),
+      );
+    }
   }
 
   @override
@@ -49,11 +64,11 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.monitor, size: 50, color: Colors.red[700]),
+              Icon(Icons.app_registration, size: 50, color: Colors.red[700]),
               const SizedBox(height: 20),
 
               const Text(
-                "Sign In",
+                "Create Account",
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
@@ -90,13 +105,37 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
+                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
                     ),
                     onPressed: () {
                       setState(() {
                         _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              TextField(
+                controller: _confirmPasswordController,
+                obscureText: _obscureConfirmPassword,
+                decoration: InputDecoration(
+                  labelText: "Confirm Password",
+                  filled: true,
+                  fillColor: Colors.grey[100],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureConfirmPassword = !_obscureConfirmPassword;
                       });
                     },
                   ),
@@ -115,16 +154,16 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: _isLoading ? null : _login,
+                  onPressed: _isLoading ? null : _register,
                   child: _isLoading
                       ? const CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        )
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  )
                       : const Text(
-                          "Login",
-                          style: TextStyle(fontSize: 16),
-                        ),
+                    "Register",
+                    style: TextStyle(fontSize: 16),
+                  ),
                 ),
               ),
 
@@ -132,9 +171,9 @@ class _LoginPageState extends State<LoginPage> {
 
               TextButton(
                 onPressed: () {
-                  // TODO: перейти на страницу регистрации
+                  Navigator.pop(context);
                 },
-                child: const Text("Don't have an account? Register"),
+                child: const Text("Already have an account? Sign In"),
               ),
             ],
           ),
@@ -143,4 +182,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-

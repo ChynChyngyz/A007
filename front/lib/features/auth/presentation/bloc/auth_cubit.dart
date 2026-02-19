@@ -1,0 +1,22 @@
+// features/auth/presentation/bloc/auth_cubit.dart
+
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:front/features/auth/domain/repositories/i_auth_repository.dart';
+import 'auth_state.dart';
+
+class AuthCubit extends Cubit<AuthState> {
+  final IAuthRepository repository;
+
+  AuthCubit(this.repository) : super(AuthInitial());
+
+  Future<void> login(String email, String password) async {
+    emit(AuthLoading());
+
+    try {
+      final user = await repository.login(email, password);
+      emit(AuthAuthenticated(user));
+    } catch (e) {
+      emit(AuthError(e.toString()));
+    }
+  }
+}
